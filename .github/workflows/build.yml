@@ -1,0 +1,53 @@
+name: Build ARM AppImage
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  # Pozwala na ręczne uruchomienie
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies (skip optional)
+      run: npm install --omit=optional --legacy-peer-deps
+      
+    - name: Install ARM64 specific dependencies
+      run: |
+        # Instaluj socketcan tylko na Linuxie dla ARM
+        npm install socketcan@4.0.5 --optional --no-save || true
+        npm install socketmost@2.0.6 --optional --no-save || true
+        
+    - name: Build application
+      run: |
+        npm run build
+        
+    - name: Build ARM64 AppImage
+      run: |
+        npm run build:armLinux
+        
+    - name: Upload AppImage
+      uses: actions/upload-artifact@v4
+      with:
+        name: react-carplay-arm64
+        path: dist/*.AppImage
+        
+    - name: Create Release (if tag)
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: dist/*.AppImage
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
