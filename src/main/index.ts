@@ -201,7 +201,7 @@ app.whenReady().then(() => {
 
   ipcMain.on('getSettings', handleSettingsReq)
 
-  ipcMain.on('saveSettings', saveSettings)
+  ipcMain.on('saveSettings', (_, settings) => saveSettings(settings))
 
   // ipcMain.on('startStream', startMostStream)
 
