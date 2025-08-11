@@ -58,16 +58,26 @@ function Carplay({ receivingVideo, setReceivingVideo, settings, command, command
   const renderWorker = useMemo(() => {
     if (!canvasElement) return
 
-    const worker = new Worker(
-      new URL('./worker/render/Render.worker.ts', import.meta.url), {type: 'module'},
-    )
-    const canvas = canvasElement.transferControlToOffscreen()
-    worker.postMessage(new InitEvent(canvas, videoChannel.port2), [
-      canvas,
-      videoChannel.port2,
-    ])
-    return worker
-  }, [canvasElement])
+    console.log('Creating render worker...')
+    try {
+      const worker = new Worker(
+        new URL('./worker/render/Render.worker.ts', import.meta.url), {type: 'module'},
+      )
+      const canvas = canvasElement.transferControlToOffscreen()
+      // Use renderer from settings, defaulting to webgl for better compatibility
+      const renderer = settings.renderer || 'webgl'
+      console.log('Using renderer:', renderer)
+      worker.postMessage(new InitEvent(canvas, videoChannel.port2, renderer), [
+        canvas,
+        videoChannel.port2,
+      ])
+      console.log('Render worker created successfully')
+      return worker
+    } catch (error) {
+      console.error('Failed to create render worker:', error)
+      return null
+    }
+  }, [canvasElement, settings.renderer])
 
   useLayoutEffect(() => {
     if (canvasRef.current) {
@@ -76,19 +86,26 @@ function Carplay({ receivingVideo, setReceivingVideo, settings, command, command
   }, [])
 
   const carplayWorker = useMemo(() => {
-    const worker = new Worker(
-      new URL('./worker/CarPlay.worker.ts', import.meta.url),
-      {type: 'module'}
-    ) as CarPlayWorker
-    const payload = {
-      videoPort: videoChannel.port1,
-      microphonePort: micChannel.port1,
+    console.log('Creating CarPlay worker...')
+    try {
+      const worker = new Worker(
+        new URL('./worker/CarPlay.worker.ts', import.meta.url),
+        {type: 'module'}
+      ) as CarPlayWorker
+      const payload = {
+        videoPort: videoChannel.port1,
+        microphonePort: micChannel.port1,
+      }
+      worker.postMessage({ type: 'initialise', payload }, [
+        videoChannel.port1,
+        micChannel.port1,
+      ])
+      console.log('CarPlay worker created successfully')
+      return worker
+    } catch (error) {
+      console.error('Failed to create CarPlay worker:', error)
+      return null
     }
-    worker.postMessage({ type: 'initialise', payload }, [
-      videoChannel.port1,
-      micChannel.port1,
-    ])
-    return worker
   }, [])
 
   const { processAudio, getAudioPlayer, startRecording, stopRecording } =

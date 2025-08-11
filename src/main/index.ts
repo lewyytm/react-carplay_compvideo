@@ -38,6 +38,7 @@ const EXTRA_CONFIG: ExtraConfig = {
   piMost: false,
   canbus: false,
   bindings: DEFAULT_BINDINGS,
+  renderer: 'webgl',
   most: {},
   canConfig: {}
 }
@@ -173,6 +174,8 @@ function createWindow(): void {
 // Some APIs can only be used after this event occurs.
 app.commandLine.appendSwitch('enable-experimental-web-platform-features');
 app.commandLine.appendSwitch("autoplay-policy", "no-user-gesture-required")
+app.commandLine.appendSwitch('disable-gpu-vsync');
+app.commandLine.appendSwitch('disable-software-rasterizer');
 app.whenReady().then(() => {
 
   // Set app user model id for windows

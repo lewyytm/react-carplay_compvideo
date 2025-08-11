@@ -12,6 +12,7 @@ export type ExtraConfig = DongleConfig & {
   piMost: boolean,
   canbus: boolean,
   bindings: KeyBindings,
+  renderer: 'webgl' | 'webgl2' | 'webgpu',
   most?: Most,
   canConfig?: CanConfig
 }

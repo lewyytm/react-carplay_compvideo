@@ -136,6 +136,22 @@ function Settings({ settings }: SettingsProps) {
         </Grid>
       )
     },
+    renderer: () => {
+      return (
+        <Grid key={'renderer'} xs={4}>
+          <FormControl>
+            <FormLabel>VIDEO RENDERER</FormLabel>
+            <RadioGroup row value={activeSettings.renderer || 'webgl'} onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+              settingsChange('renderer', (event.target as HTMLInputElement).value)
+            }}>
+              <FormControlLabel value={'webgl'} control={<Radio />} label={'WebGL'} />
+              <FormControlLabel value={'webgl2'} control={<Radio />} label={'WebGL2'} />
+              <FormControlLabel value={'webgpu'} control={<Radio />} label={'WebGPU'} />
+            </RadioGroup>
+          </FormControl>
+        </Grid>
+      )
+    },
     micType: () => {
       return (
         <Grid key={"micType"} xs={4}>
