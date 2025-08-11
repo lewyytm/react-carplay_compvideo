@@ -21,22 +21,34 @@ jobs:
         node-version: '18'
         cache: 'npm'
         
-    - name: Install dependencies (skip optional)
-      run: npm install --omit=optional --legacy-peer-deps
-      
-    - name: Install ARM64 specific dependencies
+    - name: Install dependencies
       run: |
-        # Instaluj socketcan tylko na Linuxie dla ARM
-        npm install socketcan@4.0.5 --optional --no-save || true
-        npm install socketmost@2.0.6 --optional --no-save || true
+        # Próbuj zainstalować wszystkie dependencies
+        npm install --legacy-peer-deps --force || true
+        # Jeśli fail, spróbuj bez optional
+        npm install --omit=optional --legacy-peer-deps --force || true
+      
+    - name: Install Linux-only dependencies
+      run: |
+        # Te dependencies działają tylko na Linux
+        npm install socketcan@4.0.5 --save-optional --no-package-lock || true
+        npm install socketmost@2.0.6 --save-optional --no-package-lock || true
         
     - name: Build application
       run: |
+        echo "Node version:"
+        node --version
+        echo "NPM version:"
+        npm --version  
+        echo "Building application..."
         npm run build
         
     - name: Build ARM64 AppImage
       run: |
+        echo "Building ARM64 AppImage..."
         npm run build:armLinux
+        echo "Build completed, checking files:"
+        ls -la dist/ || echo "No dist directory found"
         
     - name: Upload AppImage
       uses: actions/upload-artifact@v4
