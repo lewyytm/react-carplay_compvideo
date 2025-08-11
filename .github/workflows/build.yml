@@ -26,8 +26,8 @@ jobs:
     - name: Install dependencies
       run: |
         echo "Installing dependencies..."
-        npm ci --force --legacy-peer-deps || npm install --force --legacy-peer-deps || (
-          echo "Dependencies failed, trying with skip-postinstall..."
+        npm install --force --legacy-peer-deps || (
+          echo "npm install failed, trying with skip scripts..."
           npm install --force --legacy-peer-deps --ignore-scripts
         )
       
