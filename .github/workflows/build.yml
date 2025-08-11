@@ -26,16 +26,13 @@ jobs:
     - name: Install dependencies
       run: |
         echo "Installing dependencies..."
-        npm install --force --legacy-peer-deps || (
-          echo "npm install failed, trying with skip scripts..."
-          npm install --force --legacy-peer-deps --ignore-scripts
-        )
-      
+        npm install --force --legacy-peer-deps
+        
     - name: Install Linux-only dependencies
       run: |
         echo "Installing Linux-specific packages..."
-        npm install socketcan@4.0.5 --save-optional --no-package-lock || echo "socketcan failed, continuing..."
-        npm install socketmost@2.0.6 --save-optional --no-package-lock || echo "socketmost failed, continuing..."
+        npm install socketcan@4.0.5 --save-optional || echo "socketcan skipped"
+        npm install socketmost@2.0.6 --save-optional || echo "socketmost skipped"
         
     - name: Build application
       run: |
